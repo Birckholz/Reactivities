@@ -1,11 +1,11 @@
 import { Fragment, useEffect, useState } from "react";
 import "./styles.css";
 import axios from "axios";
-import { Container, Header, List } from "semantic-ui-react";
+import { Container } from "semantic-ui-react";
 import { Activity } from "../models/actitvity";
 import NavBar from "./NavBar";
 import ActivityDashboard from "./activities/dashboard/ActivityDashboard";
-import ActivityList from "./activities/dashboard/ActivityList";
+import {v4 as uuid} from 'uuid'
 
 function App() {
   const [activities, setActivities] = useState<Activity[]>([]);
@@ -20,6 +20,10 @@ function App() {
         setActivities(response.data);
       });
   }, [])
+
+  function handleDeleteActivity(id:string) {
+    setActivities(activities.filter(x => x.id !== id))
+  }
 
   function handleSelectActivity(id: string) {
     setSelectedActivity(activities.find(x => x.id === id))
@@ -38,6 +42,14 @@ function App() {
     setEditMode(false)
   }
 
+  function handleCreateOrEditActivity(activity: Activity) {
+    activity.id 
+    ? setActivities([...activities.filter(x => x.id !== activity.id), activity]) 
+    : setActivities([...activities, {...activity, id: uuid()}]);
+    setEditMode(false);
+    setSelectedActivity(activity);
+  }
+
   return (
     <Fragment>
       <NavBar openForm={handleFormOpen }/>
@@ -49,6 +61,8 @@ function App() {
         editMode={editMode}
         openForm={handleFormOpen}
         closeForm={handleFormClose}
+        createOrEdit={handleCreateOrEditActivity}
+        deleteActivity={handleDeleteActivity}
         />
       </Container>
     </Fragment>
